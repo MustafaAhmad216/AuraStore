@@ -262,11 +262,11 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 			sig,
 			process.env.STRIPE_WEBHOOK_SECRET_KEY,
 		);
+		if (event.type === 'checkout.session.completed') {
+			console.log('Create Order Here!');
+			console.log(event.data.object.client_reference_id);
+		}
 	} catch (err) {
 		return res.status(400).send(`Webhook Error: ${err.message}`);
-	}
-	if (event.type === 'checkout.session.completed') {
-		console.log('Create Order Here!');
-		console.log(event.data.object.client_reference_id);
 	}
 });
