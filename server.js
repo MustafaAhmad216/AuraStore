@@ -6,6 +6,7 @@ const express = require('express');
 const morgan = require('morgan'); //HTTP request logger middleware
 const dotenv = require('dotenv');
 const cors = require('cors');
+const compression = require('compression');
 const dbConnection = require('./config/database');
 
 const mountRoutes = require('./Routes/indexRoutes'); //Function to mount the routes
@@ -25,6 +26,8 @@ const app = express();
 // Enable CORS (Cross-Origin Resource Sharing) to allow requests from other domains
 app.use(cors());
 app.options('*', cors());
+
+app.use(compression());
 
 // Middlewares
 app.use(express.json()); //parser that turns the encoded string to a js object to be readable
