@@ -28,10 +28,6 @@ const app = express();
 app.use(cors());
 app.options('*', cors());
 
-// Middlewares
-app.use(express.json()); //parser that turns the encoded string to a js object to be readable
-app.use(express.static(path.join(__dirname, 'public')));
-
 //compressing all texts send to clients
 app.use(compression());
 
@@ -40,6 +36,10 @@ app.post(
 	express.raw({ type: 'application/json' }),
 	orderController.webhookCheckout,
 );
+
+// Middlewares
+app.use(express.json()); //parser that turns the encoded string to a js object to be readable
+app.use(express.static(path.join(__dirname, 'public')));
 
 // console.log(process.env);
 if (process.env.NODE_ENV !== 'production') {
