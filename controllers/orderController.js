@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const asyncHandler = require('express-async-handler');
@@ -265,7 +266,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 		return res.status(400).send(`Webhook Error: ${err.message}`);
 	}
 	if (event.type === 'checkout.session.completed') {
-		// eslint-disable-next-line no-console
 		console.log('Create Order Here!');
+		console.log(event.data.object.client_reference_id);
 	}
 });
