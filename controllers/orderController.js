@@ -227,7 +227,7 @@ exports.getCheckoutSession = asyncHandler(async (req, res, next) => {
 		line_items: [
 			{
 				price_data: {
-					unit_amount: (orderTotalPrice * 100).toFixed(2), //amount expected in cents
+					unit_amount: orderTotalPrice * 100, //amount expected in cents
 					currency: 'egp',
 					product_data: {
 						name: `${req.user.name}'s Order`,
