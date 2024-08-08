@@ -4,8 +4,8 @@
   "description": "ecommerce api project developed with NodeJs and ExpressJs",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "start:prod": "nodemon server.js"
+    "start:dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
@@ -40,5 +40,8 @@
     "eslint-plugin-react": "^7.34.3",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": "20.11.1"
   }
 }
