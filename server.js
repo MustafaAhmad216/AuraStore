@@ -10,6 +10,7 @@ const compression = require('compression');
 const dbConnection = require('./config/database');
 
 const mountRoutes = require('./Routes/indexRoutes'); //Function to mount the routes
+const orderController = require('./controllers/orderController');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./middlewares/errorMiddleware');
@@ -33,6 +34,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //compressing all texts send to clients
 app.use(compression());
+
+app.post(
+	'/webhook-checkout',
+	express.raw({ type: 'application/json' }),
+	orderController.webhookCheckout,
+);
 
 // console.log(process.env);
 if (process.env.NODE_ENV !== 'production') {

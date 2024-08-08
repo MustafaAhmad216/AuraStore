@@ -227,7 +227,7 @@ exports.getCheckoutSession = asyncHandler(async (req, res, next) => {
 		line_items: [
 			{
 				price_data: {
-					unit_amount: orderTotalPrice * 100, //amount expected in cents
+					unit_amount: (orderTotalPrice * 100).toFixed(2), //amount expected in cents
 					currency: 'egp',
 					product_data: {
 						name: `${req.user.name}'s Order`,
@@ -245,4 +245,27 @@ exports.getCheckoutSession = asyncHandler(async (req, res, next) => {
 		message: 'Checkout Session created successfully!',
 		data: { session },
 	});
+});
+
+// @desc		create Checkout Webhook from Stripe
+// @route 	POST  /webhook-checkout
+// @access	Private --> (User)
+exports.webhookCheckout = asyncHandler(async (req, res, next) => {
+	const sig = req.headers['stripe-signature'];
+
+	let event;
+
+	try {
+		event = stripe.webhooks.constructEvent(
+			req.body,
+			sig,
+			process.env.STRIPE_WEBHOOK_SECRET_KEY,
+		);
+	} catch (err) {
+		return res.status(400).send(`Webhook Error: ${err.message}`);
+	}
+	if (event.type === 'checkout.session.completed') {
+		// eslint-disable-next-line no-console
+		console.log('Create Order Here!');
+	}
 });
