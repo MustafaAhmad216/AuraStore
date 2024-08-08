@@ -27,11 +27,12 @@ const app = express();
 app.use(cors());
 app.options('*', cors());
 
-app.use(compression());
-
 // Middlewares
 app.use(express.json()); //parser that turns the encoded string to a js object to be readable
 app.use(express.static(path.join(__dirname, 'public')));
+
+//compressing all texts send to clients
+app.use(compression());
 
 // console.log(process.env);
 if (process.env.NODE_ENV !== 'production') {
