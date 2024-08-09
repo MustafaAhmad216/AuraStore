@@ -8,6 +8,7 @@ const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const AppError = require('../utilities/appError');
 const factory = require('./handlerFactory');
+const User = require('../models/userModel');
 /**********************************************************************************/
 //HELPER FUNCTIONS
 exports.filterByRole = asyncHandler(async (req, res, next) => {
@@ -248,6 +249,44 @@ exports.getCheckoutSession = asyncHandler(async (req, res, next) => {
 	});
 });
 
+const createCartOrder = async (session) => {
+	const cartId = session.client_reference_id;
+	const shippingAddress = session.metadata.address;
+	const orderAmount = session.amount_total / 100;
+
+	const cart = await Cart.findById(cartId);
+	const user = await User.findOne({ email: session.customer_email });
+
+	// Create Order
+	const order = await Order.create({
+		user: user._id,
+		cartItems: cart.cartItems,
+		shippingAddress: shippingAddress,
+		orderTotalPrice: orderAmount,
+		isPaid: true,
+		paidAt: Date.now(),
+		paymentMethod: 'card',
+	});
+
+	// Update product's quantity
+	if (order) {
+		const bulkOptions = cart.cartItems.map((item) => ({
+			updateOne: {
+				filter: { _id: item.product },
+				update: {
+					$inc: { quantity: -item.quantity, sold: +item.quantity },
+				},
+				upsert: true,
+			},
+		}));
+		await Product.bulkWrite(bulkOptions, {});
+		// await Order.save();
+		//--------------------------------------------------------------------
+		//5) clear user cart depending on cartId
+		await Cart.findByIdAndDelete(cartId);
+	}
+};
+
 // @desc		create Checkout Webhook from Stripe
 // @route 	POST  /webhook-checkout
 // @access	Private --> (User)
@@ -262,11 +301,17 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 			sig,
 			process.env.STRIPE_WEBHOOK_SECRET_KEY,
 		);
-		if (event.type === 'checkout.session.completed') {
-			console.log('Create Order Here!');
-			console.log(event.data.object.client_reference_id);
-		}
 	} catch (err) {
 		return res.status(400).send(`Webhook Error: ${err.message}`);
 	}
+	if (event.type === 'checkout.session.completed') {
+		console.log('Create Order Here...');
+		//Create Order
+		createCartOrder(event.data.object);
+	}
+
+	res.status(200).json({
+		status: 'success',
+		message: 'Webhook recieved successfully!',
+	});
 });

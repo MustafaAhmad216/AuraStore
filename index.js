@@ -3073,6 +3073,7 @@ $fd951ce66f6de7cd$exports = $hXvsm$mongoose.model("Order", $fd951ce66f6de7cd$var
 
 
 
+
 $8d247d0a428203b9$export$c79bd3be85f753a0 = $hXvsm$expressasynchandler(async (req, res, next)=>{
     if (req.user.role === "user") req.filterObj = {
         user: req.user._id
@@ -3224,18 +3225,64 @@ $8d247d0a428203b9$export$f1c4cda49673848c = $hXvsm$expressasynchandler(async (re
         }
     });
 });
+const $8d247d0a428203b9$var$createCartOrder = async (session)=>{
+    const cartId = session.client_reference_id;
+    const shippingAddress = session.metadata.address;
+    const orderAmount = session.amount_total / 100;
+    const cart = await $49fb43efabdb8e82$exports.findById(cartId);
+    const user = await $ca4b57b91abcd647$exports.findOne({
+        email: session.customer_email
+    });
+    // Create Order
+    const order = await $fd951ce66f6de7cd$exports.create({
+        user: user._id,
+        cartItems: cart.cartItems,
+        shippingAddress: shippingAddress,
+        orderTotalPrice: orderAmount,
+        isPaid: true,
+        paidAt: Date.now(),
+        paymentMethod: "card"
+    });
+    // Update product's quantity
+    if (order) {
+        const bulkOptions = cart.cartItems.map((item)=>({
+                updateOne: {
+                    filter: {
+                        _id: item.product
+                    },
+                    update: {
+                        $inc: {
+                            quantity: -item.quantity,
+                            sold: +item.quantity
+                        }
+                    },
+                    upsert: true
+                }
+            }));
+        await $5b845a0164a902e5$exports.bulkWrite(bulkOptions, {});
+        // await Order.save();
+        //--------------------------------------------------------------------
+        //5) clear user cart depending on cartId
+        await $49fb43efabdb8e82$exports.findByIdAndDelete(cartId);
+    }
+};
 $8d247d0a428203b9$export$a93ec902df19e733 = $hXvsm$expressasynchandler(async (req, res, next)=>{
     const sig = req.headers["stripe-signature"];
     let event;
     try {
         event = $8d247d0a428203b9$var$stripe.webhooks.constructEvent(req.body, sig, undefined);
-        if (event.type === "checkout.session.completed") {
-            console.log("Create Order Here!");
-            console.log(event.data.object.client_reference_id);
-        }
     } catch (err) {
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+    if (event.type === "checkout.session.completed") {
+        console.log("Create Order Here...");
+        //Create Order
+        $8d247d0a428203b9$var$createCartOrder(event.data.object);
+    }
+    res.status(200).json({
+        status: "success",
+        message: "Webhook recieved successfully!"
+    });
 });
 
 
