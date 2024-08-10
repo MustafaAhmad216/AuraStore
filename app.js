@@ -4,6 +4,7 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan'); //HTTP request logger middleware
+const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const compression = require('compression');
 
@@ -38,6 +39,14 @@ if (process.env.NODE_ENV !== 'production') {
 	app.use(morgan('dev'));
 	console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+// Limit requests from same IP to application
+const limiter = rateLimit({
+	windowMs: 1 * 60 * 60 * 1000, //60 Mins --> 1 hour
+	max: 100,
+	message: 'Too many requests from this IP, please try again in 30 mins!',
+});
+app.use('/api', limiter);
 
 /****************************************************************/
 //3) Routes
