@@ -10,7 +10,7 @@ const compression = require('compression');
 const dbConnection = require('./config/database');
 
 const mountRoutes = require('./Routes/indexRoutes'); //Function to mount the routes
-const orderController = require('./controllers/orderController');
+const { webhookCheckout } = require('./controllers/orderController');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./middlewares/errorMiddleware');
@@ -34,7 +34,7 @@ app.use(compression());
 app.post(
 	'/webhook-checkout',
 	express.raw({ type: 'application/json' }),
-	orderController.webhookCheckout,
+	webhookCheckout,
 );
 
 // Middlewares

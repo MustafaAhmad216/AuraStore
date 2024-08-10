@@ -2974,7 +2974,7 @@ var $8d247d0a428203b9$export$66635d9d3025feee;
 // @route 	GET  /api/v1/orders/checkout-session/:cartIds
 // @access	Private --> (User)
 var $8d247d0a428203b9$export$f1c4cda49673848c;
-// @desc		create Checkout Webhook from Stripe
+// @desc		create Checkout Webhook from Stripe when payment is successful
 // @route 	POST  /webhook-checkout
 // @access	Private --> (User)
 var $8d247d0a428203b9$export$a93ec902df19e733;
@@ -3319,6 +3319,7 @@ $df4918d75e68c40b$exports = $df4918d75e68c40b$var$mountRoutes;
 
 
 
+var $2685e5b20c9f29f6$require$webhookCheckout = $8d247d0a428203b9$export$a93ec902df19e733;
 
 var $b2fe290a65fb278a$exports = {};
 
@@ -3364,7 +3365,7 @@ $2685e5b20c9f29f6$var$app.options("*", $hXvsm$cors());
 $2685e5b20c9f29f6$var$app.use($hXvsm$compression());
 $2685e5b20c9f29f6$var$app.post("/webhook-checkout", $hXvsm$express.raw({
     type: "application/json"
-}), $8d247d0a428203b9$export$a93ec902df19e733);
+}), $2685e5b20c9f29f6$require$webhookCheckout);
 // Middlewares
 $2685e5b20c9f29f6$var$app.use($hXvsm$express.json()); //parser that turns the encoded string to a js object to be readable
 $2685e5b20c9f29f6$var$app.use($hXvsm$express.static($hXvsm$path.join($2685e5b20c9f29f6$var$__dirname, "public")));

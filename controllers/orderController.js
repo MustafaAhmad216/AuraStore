@@ -287,7 +287,7 @@ const createCartOrder = async (session) => {
 	}
 };
 
-// @desc		create Checkout Webhook from Stripe
+// @desc		create Checkout Webhook from Stripe when payment is successful
 // @route 	POST  /webhook-checkout
 // @access	Private --> (User)
 exports.webhookCheckout = asyncHandler(async (req, res, next) => {
