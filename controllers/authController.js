@@ -8,6 +8,7 @@ const asyncHandler = require('express-async-handler');
 
 const User = require('../models/userModel');
 const AppError = require('../utilities/appError');
+const { sanitizeUser } = require('../utilities/sanitizeData');
 const { sendEmail } = require('../utilities/emailHandler');
 const createToken = require('../utilities/createToken');
 
@@ -34,7 +35,7 @@ exports.signup = asyncHandler(async (req, res, next) => {
 		status: 'success',
 		message: 'User created successfully! ',
 		token,
-		data: { user },
+		data: sanitizeUser(user),
 	});
 });
 
@@ -71,7 +72,8 @@ exports.login = asyncHandler(async (req, res, next) => {
 		status: 'success',
 		message: 'User logged in successfully! ',
 		token,
-		data: { user },
+		data: sanitizeUser(user),
+		// data: (user),
 	});
 });
 
@@ -265,6 +267,6 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 		status: 'success',
 		message: 'Password has been reset successfully!',
 		token,
-		data: { user },
+		data: sanitizeUser(user),
 	});
 });
