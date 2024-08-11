@@ -7,6 +7,7 @@ const morgan = require('morgan'); //HTTP request logger middleware
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 
 const mountRoutes = require('./Routes/indexRoutes'); //Function to mount the routes
@@ -26,12 +27,6 @@ const app = express();
 app.use(cors());
 app.options('*', cors());
 
-//compressing all texts send to clients
-app.use(compression());
-
-//Body Parser, reading data from body into req.body
-app.use(express.json({ limit: '50kb' })); //express.json() is an express middleware that permits using the request body
-
 app.use(express.json()); //parser that turns the encoded string to a js object to be readable
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -41,7 +36,17 @@ if (process.env.NODE_ENV !== 'production') {
 	console.log(`mode: ${process.env.NODE_ENV}`);
 }
 
-// Limit requests from same IP to application
+//compressing all texts send to clients
+app.use(compression());
+
+//Body Parser, reading data from body into req.body
+app.use(express.json({ limit: '50kb' })); //express.json() is an express middleware that permits using the request body
+
+//Data Sanitization against NoSQL query injection in (req.params, req.query, req.body)
+app.use(mongoSanitize());
+//AND Data Sanitization against XSS attacks applied in indexRoutes.js
+
+//Limit requests from same IP to application
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 60 * 1000, //60 Mins --> 1 hour
 	max: 100,
