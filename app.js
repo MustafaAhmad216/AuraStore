@@ -6,6 +6,7 @@ const express = require('express');
 const morgan = require('morgan'); //HTTP request logger middleware
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const hpp = require('hpp');
 const compression = require('compression');
 
 const mountRoutes = require('./Routes/indexRoutes'); //Function to mount the routes
@@ -47,6 +48,21 @@ const limiter = rateLimit({
 	message: 'Too many requests from this IP, please try again in 30 mins!',
 });
 app.use('/api', limiter);
+
+//Middleware to protect against (HTTP Parameter Pollution) attacks
+app.use(
+	hpp({
+		whitelist: [
+			'title',
+			'color',
+			'price',
+			'quantity',
+			'sold',
+			'ratingsAverage',
+			'ratingsQuantity',
+		],
+	}),
+);
 
 /****************************************************************/
 //3) Routes
