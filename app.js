@@ -19,6 +19,7 @@ const globalErrorHandler = require('./middlewares/errorMiddleware');
 
 // 1) Start Express App
 const app = express();
+app.enable('trust proxy');
 
 /****************************************************************/
 // 2) Global Middlewares
